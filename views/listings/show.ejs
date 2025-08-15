@@ -1,0 +1,136 @@
+<% layout('/layouts/boilerplate') -%>
+
+<body>
+
+  <div class="container py-4">
+    
+    <!-- Listing Image Card -->
+    <div class="card shadow-lg mb-4 border-0">
+      <img src="<%= listing.image.url %>" class="card-img-top" style="height: 400px; object-fit: cover;" alt="Listing Image">
+      <div class="card-body">
+        <h2 class="card-title fw-bold"><%= listing.title %></h2>
+        <p class="text-muted">📍 <%= listing.location %>, <%= listing.country %></p>
+      </div>
+    </div>
+
+    <!-- Details Section -->
+    <div class="mb-4">
+      <p></i>Owned by: <i> <%= listing.owner.username %> </i></p>
+      <h4>Description</h4>
+      <p class="text-muted fs-5"><%= listing.description %></p>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h4 class="text-primary fw-bold">&#8377; <%= listing.price.toLocaleString('en-IN') %> <small class="text-muted fs-6">/ night</small></h4>
+      <span class="badge bg-dark fs-6 p-2"><%= listing.country %></span>
+    </div>
+
+    <!-- Action Buttons -->
+    <% if(currUser && currUser._id.equals(listing.owner._id) ){ %>
+    <div class="d-flex gap-3">
+      <form method="get" action="/listings/<%= listing._id %>/edit" class="w-100">
+        <button class="btn btn-outline-primary w-100">Edit Listing</button>
+      </form>
+      <form method="post" action="/listings/<%= listing._id %>?_method=DELETE" class="w-100">
+        <button class="btn btn-outline-danger w-100">Delete Listing</button>
+      </form>
+    </div>
+    <% } %>
+    <hr>
+
+  <!-- Review Section -->
+   <% if(currUser) {%>
+ <div class="card shadow-sm mt-5">
+   <div class="card-body">
+     <h4 class="card-title mb-4">Leave Your Review</h4>
+
+     <form action="/listings/<%= listing._id %>/reviews" method="POST" class="needs-validation" novalidate>
+
+       <div class="mb-3">
+        <label for="rating" class="form-label">Rating:</label>
+         <fieldset class="starability-slot">
+           <input type="radio" class="form-range" id="rating" name="review[rating]" min="0" max="5" required>
+           <input type="radio" id="no-rate" class="input-no-rate" name="review[rating]" value="0" checked aria-label="No rating." />
+           <input type="radio" id="first-rate1" name="review[rating]" value="1" />
+           <label for="first-rate1" title="Terrible">1 star</label>
+           <input type="radio" id="first-rate2" name="review[rating]" value="2" />
+           <label for="first-rate2" title="Not good">2 stars</label>
+           <input type="radio" id="first-rate3" name="review[rating]" value="3" />
+           <label for="first-rate3" title="Average">3 stars</label>
+           <input type="radio" id="first-rate4" name="review[rating]" value="4" />
+           <label for="first-rate4" title="Very good">4 stars</label>
+           <input type="radio" id="first-rate5" name="review[rating]" value="5" />
+            <label for="first-rate5" title="Amazing">5 stars</label>
+          </fieldset>
+        </div>
+
+       <div class="mb-3">
+         <label for="comment" class="form-label">Comment:</label>
+         <textarea class="form-control" id="comment" name="review[comment]" rows="3" placeholder="Write your feedback..." required></textarea>
+         <div class="valid-feedback">
+          Looks good!
+        </div>
+        <div class="invalid-feedback">
+         To Submit enter some comment.
+          </div>
+       </div>
+
+       <button type="submit" class="btn btn-success w-100">Submit Review</button>
+     </form>
+     <% } %>
+    </div>
+ </div>
+
+   <!--Show Reviews-->
+ <div class="mb-4 ms-5">
+  <h4 class="mb-3">Reviews</h4>
+  <div class="row">
+    <% for (let review of listing.reviews) { %>
+      <div class="col-md-4 mb-3">
+        <div class="card h-100 shadow-sm border-0">
+          <div class="card-body">
+            <p class="card-title">By:@<%= review.author.username %></p>
+            <p class="card-text"><strong>Comment:</strong> <%= review.comment %></p>
+            <p class="starability-result card-text" data-rating=<%= review.rating %>></p>
+            <!--Delete button-->
+            <form method="Post" action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE">
+               <button class="btn btn-outline-danger">Delete</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+ <!-- Map Section -->
+<div class="container my-5">
+  <div class="card shadow-lg border-0">
+    <div class="card-header bg-primary text-white text-center fs-4 fw-bold">
+      📍 Location Map
+    </div>
+    <div class="card-body d-flex justify-content-center">
+      <div id="map" 
+           data-lat="<%= listing.latitude %>" 
+           data-lng="<%= listing.longitude %>" 
+           data-location="<%= listing.location %>, <%= listing.country %>" 
+           style="height: 300px; width: 100%; border-radius: 10px;">
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<!-- Our custom map script -->
+<script src="/maps.js"></script>
+
+
+</div>
+
+</body>
